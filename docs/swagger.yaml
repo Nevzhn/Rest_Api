@@ -1,11 +1,543 @@
 basePath: /
+definitions:
+  handler.errorResponse:
+    properties:
+      massage:
+        type: string
+    type: object
+  handler.signInInput:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  todo.TodoItem:
+    properties:
+      description:
+        type: string
+      done:
+        type: boolean
+      id:
+        type: integer
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  todo.TodoList:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  todo.UpdateItemInput:
+    properties:
+      description:
+        type: string
+      done:
+        type: boolean
+      title:
+        type: string
+    type: object
+  todo.User:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - name
+    - password
+    - username
+    type: object
 host: localhost:8000
 info:
   contact: {}
   description: todo app for test
   title: ToDo App Api
   version: "1.0"
-paths: {}
+paths:
+  /api/items/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete item
+      operationId: delete-item
+      parameters:
+      - description: item id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Item
+      tags:
+      - items
+    get:
+      consumes:
+      - application/json
+      description: get one item by id
+      operationId: id-item
+      parameters:
+      - description: item id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Item By Id
+      tags:
+      - items
+    put:
+      consumes:
+      - application/json
+      description: update item
+      operationId: update-item
+      parameters:
+      - description: item id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: information for update
+        in: body
+        name: input
+        schema:
+          $ref: '#/definitions/todo.UpdateItemInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Item
+      tags:
+      - items
+  /api/lists:
+    get:
+      consumes:
+      - application/json
+      description: get all lists
+      operationId: all-lists
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get All lists
+      tags:
+      - lists
+    post:
+      consumes:
+      - application/json
+      description: create new list
+      operationId: new-list
+      parameters:
+      - description: list information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/todo.TodoList'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create list
+      tags:
+      - lists
+  /api/lists/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete list by id
+      operationId: delete-lists
+      parameters:
+      - description: list id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete list
+      tags:
+      - lists
+    get:
+      consumes:
+      - application/json
+      description: get one list by id
+      operationId: id-lists
+      parameters:
+      - description: list id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get List By Id
+      tags:
+      - lists
+    put:
+      consumes:
+      - application/json
+      description: update list information
+      operationId: update-list
+      parameters:
+      - description: list id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update list
+      tags:
+      - lists
+  /api/lists/{id}/items:
+    get:
+      consumes:
+      - application/json
+      description: get all items in list
+      operationId: get-items
+      parameters:
+      - description: list id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get All items
+      tags:
+      - items
+    post:
+      consumes:
+      - application/json
+      description: create new item in list
+      operationId: create-list
+      parameters:
+      - description: list id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: item information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/todo.TodoItem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create item
+      tags:
+      - items
+  /auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: auth user
+      operationId: auth-user
+      parameters:
+      - description: login and password
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handler.signInInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Sign In
+      tags:
+      - auth
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: createUser
+      operationId: createUsers
+      parameters:
+      - description: account info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/todo.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Sign Up
+      tags:
+      - auth
 securityDefinitions:
   ApiKeyAuth:
     in: header

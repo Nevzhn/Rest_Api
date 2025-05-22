@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	todo "do-app"
+	_ "do-app/docs"
 	"do-app/pkg/handler"
 	"do-app/pkg/repository"
 	"do-app/pkg/service"

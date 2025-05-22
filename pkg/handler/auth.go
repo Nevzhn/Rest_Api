@@ -8,18 +8,17 @@ import (
 
 // @Summary Sign Up
 // @Tags auth
-// @Description create user
-// @ID create-user
+// @Description createUser
+// @ID createUsers
 // @Accept json
 // @Produce json
 // @Param input body todo.User true "account info"
 // @Success 200 {integer} integer 1
-// @Failure 400, 404 {object} errorResponse
+// @Failure 400 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
 // @Router /auth/sign-up [post]
-
-func (h *Handler) signUp(c *gin.Context) {
+func (h *Handler) SignUp(c *gin.Context) {
 	var input todo.User
 
 	if err := c.BindJSON(&input); err != nil {
@@ -46,6 +45,18 @@ type signInInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
+// @Summary Sign In
+// @Tags auth
+// @Description auth user
+// @ID auth-user
+// @Accept json
+// @Produce json
+// @Param input body signInInput true "login and password"
+// @Success 200 {integer} integer 1
+// @Failure 400 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /auth/sign-in [post]
 func (h *Handler) signIn(c *gin.Context) {
 	var input signInInput
 

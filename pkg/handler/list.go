@@ -11,6 +11,20 @@ type GetAllListResponse struct {
 	Data []todo.TodoList `json:"data"`
 }
 
+// @Summary Create list
+// @Tags lists
+// @Security ApiKeyAuth
+// @Description create new list
+// @ID new-list
+// @Accept json
+// @Produce json
+// @Param input body todo.TodoList true "list information"
+// @Success 200 {integer} integer 1
+// @Failure 400 {object} errorResponse
+// @Failure 401 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /api/lists [post]
 func (h *Handler) createList(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
@@ -33,6 +47,19 @@ func (h *Handler) createList(c *gin.Context) {
 	})
 }
 
+// @Summary Get All lists
+// @Tags lists
+// @Security ApiKeyAuth
+// @Description get all lists
+// @ID all-lists
+// @Accept json
+// @Produce json
+// @Success 200 {integer} integer 1
+// @Failure 400 {object} errorResponse
+// @Failure 401 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /api/lists [get]
 func (h *Handler) getAllLists(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
@@ -49,6 +76,20 @@ func (h *Handler) getAllLists(c *gin.Context) {
 	})
 }
 
+// @Summary Get List By Id
+// @Tags lists
+// @Security ApiKeyAuth
+// @Description get one list by id
+// @ID id-lists
+// @Accept json
+// @Produce json
+// @Param id path string true "list id"
+// @Success 200 {integer} integer 1
+// @Failure 400 {object} errorResponse
+// @Failure 401 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /api/lists/{id} [get]
 func (h *Handler) getListById(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
@@ -69,6 +110,20 @@ func (h *Handler) getListById(c *gin.Context) {
 	c.JSON(http.StatusOK, list)
 }
 
+// @Summary Update list
+// @Tags lists
+// @Security ApiKeyAuth
+// @Description update list information
+// @ID update-list
+// @Accept json
+// @Produce json
+// @Param id path string true "list id"
+// @Success 200 {integer} integer 1
+// @Failure 400 {object} errorResponse
+// @Failure 401 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /api/lists/{id} [put]
 func (h *Handler) updateList(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
@@ -97,6 +152,20 @@ func (h *Handler) updateList(c *gin.Context) {
 	})
 }
 
+// @Summary Delete list
+// @Tags lists
+// @Security ApiKeyAuth
+// @Description delete list by id
+// @ID delete-lists
+// @Accept json
+// @Produce json
+// @Param id path string true "list id"
+// @Success 200 {integer} integer 1
+// @Failure 400 {object} errorResponse
+// @Failure 401 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /api/lists/{id} [delete]
 func (h *Handler) deleteList(c *gin.Context) {
 	userId, err := getUserId(c)
 	if err != nil {
