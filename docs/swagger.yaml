@@ -48,6 +48,13 @@ definitions:
       title:
         type: string
     type: object
+  todo.UpdateListInput:
+    properties:
+      description:
+        type: string
+      title:
+        type: string
+    type: object
   todo.User:
     properties:
       name:
@@ -355,6 +362,11 @@ paths:
         name: id
         required: true
         type: string
+      - description: information for update
+        in: body
+        name: input
+        schema:
+          $ref: '#/definitions/todo.UpdateListInput'
       produces:
       - application/json
       responses:

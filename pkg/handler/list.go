@@ -118,6 +118,7 @@ func (h *Handler) getListById(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "list id"
+// @Param input body todo.UpdateListInput false "information for update"
 // @Success 200 {integer} integer 1
 // @Failure 400 {object} errorResponse
 // @Failure 401 {object} errorResponse
