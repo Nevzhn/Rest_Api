@@ -10,7 +10,7 @@ type statusResponse struct {
 }
 
 type errorResponse struct {
-	Message string `json:"massage"`
+	Message string `json:"message"`
 }
 
 func newErrorResponse(c *gin.Context, statusCode int, message string) {
