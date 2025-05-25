@@ -3,6 +3,7 @@ package handler
 import (
 	"do-app/pkg/service"
 	mock_service "do-app/pkg/service/mocks"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -11,7 +12,7 @@ import (
 	"testing"
 )
 
-func TestNewHandler_userIdentity(t *testing.T) {
+func TestHandler_userIdentity(t *testing.T) {
 	type mockBehavior func(s *mock_service.MockAuthorization, token string)
 
 	testTable := []struct {
@@ -33,6 +34,35 @@ func TestNewHandler_userIdentity(t *testing.T) {
 			},
 			expectStatusCode:    200,
 			expectResponsesBody: "1",
+		},
+		{
+			name:                "Empty header",
+			headerName:          "",
+			headerValue:         "Bearer token",
+			token:               "token",
+			mockBehavior:        func(s *mock_service.MockAuthorization, token string) {},
+			expectStatusCode:    401,
+			expectResponsesBody: `{"message":"empty auth header"}`,
+		},
+		{
+			name:                "Invalid header",
+			headerName:          "Authorization",
+			headerValue:         "Bearer",
+			token:               "token",
+			mockBehavior:        func(s *mock_service.MockAuthorization, token string) {},
+			expectStatusCode:    401,
+			expectResponsesBody: `{"message":"invalid auth header"}`,
+		},
+		{
+			name:        "Service failrule",
+			headerName:  "Authorization",
+			headerValue: "Bearer token",
+			token:       "token",
+			mockBehavior: func(s *mock_service.MockAuthorization, token string) {
+				s.EXPECT().ParseToken(token).Return(1, errors.New("invalid parse token"))
+			},
+			expectStatusCode:    401,
+			expectResponsesBody: `{"message":"invalid parse token"}`,
 		},
 	}
 
@@ -59,8 +89,8 @@ func TestNewHandler_userIdentity(t *testing.T) {
 
 			r.ServeHTTP(w, req)
 
-			assert.Equal(t, w.Code, testCase.expectStatusCode)
-			assert.Equal(t, w.Body.String(), testCase.expectResponsesBody)
+			assert.Equal(t, testCase.expectStatusCode, w.Code)
+			assert.Equal(t, testCase.expectResponsesBody, w.Body.String())
 		})
 	}
 }
