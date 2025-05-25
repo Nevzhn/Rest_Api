@@ -111,6 +111,26 @@ func TestHandler_signIn(t *testing.T) {
 			expectStatusCode:  200,
 			expectRequestBody: `{"token":"1"}`,
 		},
+		{
+			name:              "No Pole",
+			inputBody:         `{"username":"test"}`,
+			mockBehavior:      func(s *mock_service.MockAuthorization, user signInInput) {},
+			expectStatusCode:  400,
+			expectRequestBody: `{"message":"invalid input body"}`,
+		},
+		{
+			name:      "Failed in service",
+			inputBody: `{"username":"test", "password":"qwerty"}`,
+			inputUser: signInInput{
+				Username: "test",
+				Password: "qwerty",
+			},
+			mockBehavior: func(s *mock_service.MockAuthorization, user signInInput) {
+				s.EXPECT().GenerateToken(user.Username, user.Password).Return("1", errors.New("error generate token"))
+			},
+			expectStatusCode:  500,
+			expectRequestBody: `{"message":"error generate token"}`,
+		},
 	}
 
 	for _, testCase := range testTable {
