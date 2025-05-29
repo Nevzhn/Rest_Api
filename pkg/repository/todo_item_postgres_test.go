@@ -162,16 +162,29 @@ func TestTodoItemPostgres_GetAll(t *testing.T) {
 			},
 			items: []todo.TodoItem{
 				{
-					Title:       "test title",
+					Title:       "test title 1",
 					Description: "test description",
 					Id:          1,
 					Done:        false,
+				},
+				{
+					Title: "test title 2",
+					Id:    2,
+					Done:  true,
+				},
+				{
+					Title:       "test title 3",
+					Id:          3,
+					Description: "jopa",
+					Done:        true,
 				},
 			},
 			mockBehavior: func(args args, items []todo.TodoItem) {
 
 				row := sqlmock.NewRows([]string{"id", "title", "description", "done"}).
-					AddRow(items[0].Id, items[0].Title, items[0].Description, items[0].Done)
+					AddRow(items[0].Id, items[0].Title, items[0].Description, items[0].Done).
+					AddRow(items[1].Id, items[1].Title, items[1].Description, items[1].Done).
+					AddRow(items[2].Id, items[2].Title, items[2].Description, items[2].Done)
 				mock.ExpectQuery(`SELECT ti.id, ti.title, ti.description, ti.done FROM todo_items ti`).
 					WithArgs(args.listId, args.userId).WillReturnRows().WillReturnRows(row)
 			},
