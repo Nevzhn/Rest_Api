@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"database/sql"
 	todo "do-app"
 	"fmt"
 	"github.com/stretchr/testify/assert"
@@ -189,6 +190,19 @@ func TestTodoItemPostgres_GetAll(t *testing.T) {
 					WithArgs(args.listId, args.userId).WillReturnRows().WillReturnRows(row)
 			},
 		},
+		{
+			name: "Select Error",
+			args: args{
+				listId: 1,
+				userId: 1,
+			},
+			mockBehavior: func(args args, items []todo.TodoItem) {
+
+				mock.ExpectQuery(`SELECT ti.id, ti.title, ti.description, ti.done FROM todo_items ti`).
+					WithArgs(args.listId, args.userId).WillReturnError(fmt.Errorf("some error"))
+			},
+			wantErr: true,
+		},
 	}
 
 	for _, testCase := range testTable {
@@ -199,9 +213,243 @@ func TestTodoItemPostgres_GetAll(t *testing.T) {
 
 			if testCase.wantErr {
 				assert.Error(t, err)
+				log.Println(err)
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, testCase.items, got)
+			}
+		})
+	}
+}
+
+func TestTodoItemPostgres_GetById(t *testing.T) {
+	db, mock, err := sqlmock.Newx()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	r := NewTodoItemPostgres(db)
+
+	type args struct {
+		userId int
+		itemId int
+	}
+
+	type mockBehavior func(args args, item todo.TodoItem)
+
+	testTable := []struct {
+		name         string
+		item         todo.TodoItem
+		args         args
+		mockBehavior mockBehavior
+		wantErr      bool
+	}{
+		{
+			name: "OK",
+			item: todo.TodoItem{
+				Id:          1,
+				Title:       "test title",
+				Description: "test description",
+				Done:        true,
+			},
+			args: args{
+				userId: 1,
+				itemId: 1,
+			},
+			mockBehavior: func(args args, item todo.TodoItem) {
+				row := sqlmock.NewRows([]string{"id", "title", "description", "done"}).
+					AddRow(item.Id, item.Title, item.Description, item.Done)
+				mock.ExpectQuery(`SELECT ti.id, ti.title, ti.description, ti.done FROM todo_items ti`).
+					WithArgs(args.itemId, args.userId).WillReturnRows(row)
+			},
+		},
+		{
+			name: "Error",
+			args: args{
+				userId: 1,
+				itemId: 1,
+			},
+			mockBehavior: func(args args, item todo.TodoItem) {
+				mock.ExpectQuery(`SELECT ti.id, ti.title, ti.description, ti.done FROM todo_items ti`).
+					WithArgs(args.itemId, args.userId).WillReturnError(fmt.Errorf("some error"))
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+
+			testCase.mockBehavior(testCase.args, testCase.item)
+
+			got, err := r.GetById(testCase.args.userId, testCase.args.itemId)
+
+			if testCase.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, testCase.item, got)
+			}
+		})
+	}
+}
+
+func TestTodoItemPostgres_Delete(t *testing.T) {
+
+	db, mock, err := sqlmock.Newx()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	r := NewTodoItemPostgres(db)
+
+	type args struct {
+		userId int
+		itemId int
+	}
+
+	type mockBehavior func(args args)
+
+	testTable := []struct {
+		name         string
+		args         args
+		mockBehavior mockBehavior
+		wantErr      bool
+	}{
+		{
+			name: "OK",
+			args: args{
+				userId: 1,
+				itemId: 1,
+			},
+			mockBehavior: func(args args) {
+				mock.ExpectExec(`DELETE FROM todo_items ti USING lists_items li, users_lists ul`).
+					WithArgs(args.userId, args.itemId).WillReturnResult(sqlmock.NewResult(1, 0))
+			},
+		},
+		{
+			name: "Not Found",
+			args: args{
+				userId: 1,
+				itemId: 1,
+			},
+			mockBehavior: func(args args) {
+				mock.ExpectExec(`DELETE FROM todo_items ti USING lists_items li, users_lists ul`).
+					WithArgs(args.userId, args.itemId).WillReturnError(sql.ErrNoRows)
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+
+			testCase.mockBehavior(testCase.args)
+
+			err = r.Delete(testCase.args.userId, testCase.args.itemId)
+			if testCase.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func stringPointer(s string) *string {
+	return &s
+}
+
+func boolPointer(b bool) *bool {
+	return &b
+}
+
+func TestTodoItemPostgres_update(t *testing.T) {
+	db, mock, err := sqlmock.Newx()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	r := NewTodoItemPostgres(db)
+
+	type args struct {
+		userId int
+		itemId int
+		input  todo.UpdateItemInput
+	}
+
+	type mockBehavior func(args args)
+
+	testTable := []struct {
+		name         string
+		args         args
+		mockBehavior mockBehavior
+		wantErr      bool
+	}{
+		{
+			name: "OK",
+			args: args{
+				userId: 1,
+				itemId: 1,
+				input: todo.UpdateItemInput{
+					Title:       stringPointer("title test"),
+					Description: stringPointer("description test"),
+					Done:        boolPointer(true),
+				},
+			},
+			mockBehavior: func(args args) {
+				mock.ExpectExec(`UPDATE todo_items ti SET (.+) FROM lists_items li, users_lists ul 
+                    						 WHERE (.+)`).
+					WithArgs(args.input.Title, args.input.Description, args.input.Done, args.userId, args.itemId).
+					WillReturnResult(sqlmock.NewResult(1, 0))
+			},
+		},
+		{
+			name: "OK_WithoutDescription",
+			args: args{
+				userId: 1,
+				itemId: 1,
+				input: todo.UpdateItemInput{
+					Title: stringPointer("title test"),
+					Done:  boolPointer(true),
+				},
+			},
+			mockBehavior: func(args args) {
+				mock.ExpectExec(`UPDATE todo_items ti SET (.+) FROM lists_items li, users_lists ul 
+                    						 WHERE (.+)`).
+					WithArgs(args.input.Title, args.input.Done, args.userId, args.itemId).
+					WillReturnResult(sqlmock.NewResult(1, 0))
+			},
+		},
+		{
+			name: "Empty input",
+			args: args{
+				userId: 1,
+				itemId: 1,
+				input:  todo.UpdateItemInput{},
+			},
+			mockBehavior: func(args args) {
+				mock.ExpectExec(`UPDATE todo_items ti SET FROM lists_items li, users_lists ul 
+                    						 WHERE (.+)`).
+					WithArgs(args.userId, args.itemId).
+					WillReturnResult(sqlmock.NewResult(1, 0))
+			},
+		},
+	}
+
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+
+			testCase.mockBehavior(testCase.args)
+
+			err = r.Update(testCase.args.userId, testCase.args.itemId, testCase.args.input)
+			if testCase.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
 			}
 		})
 	}

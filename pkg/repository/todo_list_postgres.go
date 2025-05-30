@@ -12,7 +12,7 @@ type TodoListPostgres struct {
 	db *sqlx.DB
 }
 
-func NewTodoLIstPostgres(db *sqlx.DB) *TodoListPostgres {
+func NewTodoListPostgres(db *sqlx.DB) *TodoListPostgres {
 	return &TodoListPostgres{db: db}
 }
 
