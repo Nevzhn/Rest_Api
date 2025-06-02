@@ -45,8 +45,11 @@ func (r *TodoListPostgres) GetAll(userId int) ([]todo.TodoList, error) {
 	query := fmt.Sprintf("SELECT tl.id, tl.title, tl.description FROM %s tl INNER JOIN"+
 		" %s ul on tl.id = ul.list_id WHERE ul.user_id = $1", todoListsTable, usersListsTable)
 	err := r.db.Select(&lists, query, userId)
+	if err != nil {
+		return nil, fmt.Errorf("Get All lists repository: %w", err)
+	}
 
-	return lists, err
+	return lists, nil
 }
 
 func (r *TodoListPostgres) GetById(userId, listId int) (todo.TodoList, error) {
@@ -56,16 +59,22 @@ func (r *TodoListPostgres) GetById(userId, listId int) (todo.TodoList, error) {
                                  %s ul on tl.id = ul.list_id WHERE ul.user_id = $1 AND ul.list_id = $2`,
 		todoListsTable, usersListsTable)
 	err := r.db.Get(&list, query, userId, listId)
+	if err != nil {
+		return list, fmt.Errorf("GetById list repository: %w", err)
+	}
 
-	return list, err
+	return list, nil
 }
 
 func (r *TodoListPostgres) Delete(userId, listId int) error {
 	query := fmt.Sprintf("DELETE FROM %s tl USING %s ul WHERE tl.id = ul.list_id AND ul.user_id=$1 AND ul.list_id=$2",
 		todoListsTable, usersListsTable)
 	_, err := r.db.Exec(query, userId, listId)
+	if err != nil {
+		return fmt.Errorf("Delete list repository: %w", err)
+	}
 
-	return err
+	return nil
 }
 
 func (r *TodoListPostgres) Update(userId, listId int, input todo.UpdateListInput) error {
@@ -93,5 +102,9 @@ func (r *TodoListPostgres) Update(userId, listId int, input todo.UpdateListInput
 	logrus.Debugf("updateArgs: %s", args)
 
 	_, err := r.db.Exec(query, args...)
-	return err
+	if err != nil {
+		return fmt.Errorf("Update list repository: %w", err)
+	}
+
+	return nil
 }

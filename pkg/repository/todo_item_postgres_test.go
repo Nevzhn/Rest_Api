@@ -199,7 +199,7 @@ func TestTodoItemPostgres_GetAll(t *testing.T) {
 			mockBehavior: func(args args, items []todo.TodoItem) {
 
 				mock.ExpectQuery(`SELECT ti.id, ti.title, ti.description, ti.done FROM todo_items ti`).
-					WithArgs(args.listId, args.userId).WillReturnError(fmt.Errorf("some error"))
+					WithArgs(args.listId, args.userId).WillReturnError(assert.AnError)
 			},
 			wantErr: true,
 		},
